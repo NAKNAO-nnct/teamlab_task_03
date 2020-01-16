@@ -13,42 +13,29 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(["middleware" => "guest:api"], function () {
+    Route::post("/login", "ApiController@login");
 });
 
+Route::group(["middleware" => "auth:api"], function () {
+    Route::get("/me", "ApiController@me");
+});
 
-// Route::resource('product', 'ProductsController')->names([
-//     'index' => 'product.hoge'
-// ]);
+Route::group(['middleware' => 'api'], function () {
+    Route::group(['middleware' => 'jwt.auth', 'prefix' => 'product'], function () {
+        // 検索
+        Route::get('', 'ProductsController@index');
 
+        // 取得
+        Route::get('/{id}', 'ProductsController@show');
 
-Route::group(['prefix' => 'product'], function () {
-    // 検索
-    Route::get('', 'ProductsController@index');
+        // 登録
+        Route::post('', 'ProductsController@store');
 
-    // 取得
-    Route::get('/{id}', function ($id) {
-        return;
-    });
+        // 更新
+        Route::put('/{id}', 'ProductsController@update');
 
-    // 全表示
-    // Route::get('', function () {
-    //     return;
-    // });
-
-    // 登録
-    Route::post('', function () {
-        return;
-    });
-
-    // 更新
-    Route::put('/{id}', function ($id) {
-        return;
-    });
-
-    // 削除
-    Route::delete('/{id}', function ($id) {
-        return;
+        // 削除
+        Route::delete('/{id}', 'ProductsController@destroy');
     });
 });
